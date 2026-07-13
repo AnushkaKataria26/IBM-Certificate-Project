@@ -1,0 +1,11 @@
+mlflow==3.14.0
+accelerate==1.14.0
+defusedxml==0.7.1
+dill==0.4.1
+numpy==2.4.6
+pandas==2.3.3
+scikit-learn==1.9.0
+scipy==1.17.1
+torch==2.13.0
+torchvision==0.28.0
+transformers==5.13.0

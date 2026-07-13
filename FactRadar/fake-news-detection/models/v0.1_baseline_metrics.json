@@ -1,0 +1,19 @@
+{
+  "val_accuracy": 0.9803375674264834,
+  "val_f1": 0.980150440242268,
+  "random_accuracy": 0.976509,
+  "random_precision_macro": 0.97697,
+  "random_recall_macro": 0.975675,
+  "random_f1_macro": 0.976276,
+  "random_roc_auc": 0.995522,
+  "topic_disjoint_accuracy": 0.991392,
+  "topic_disjoint_precision_macro": 0.957227,
+  "topic_disjoint_recall_macro": 0.952169,
+  "topic_disjoint_f1_macro": 0.954682,
+  "topic_disjoint_roc_auc": 0.996443,
+  "temporal_accuracy": 0.99304,
+  "temporal_precision_macro": 0.983753,
+  "temporal_recall_macro": 0.982503,
+  "temporal_f1_macro": 0.983127,
+  "temporal_roc_auc": 0.999061
+}

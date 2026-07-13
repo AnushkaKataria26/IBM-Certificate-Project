@@ -1,0 +1,10 @@
+artifact_location: file:///Users/anushkakataria/Desktop/Placement/Projects/FactRadar/fake-news-detection/mlruns/222621951414397516/models/m-825a5e214e6d4d76a25c156a33cbd524/artifacts
+creation_timestamp: 1783533878261
+experiment_id: '222621951414397516'
+last_updated_timestamp: 1783533891745
+model_id: m-825a5e214e6d4d76a25c156a33cbd524
+model_type: null
+name: model
+source_run_id: 486ea44b74a342ecae6bcbd0889020c8
+status: 2
+status_message: null

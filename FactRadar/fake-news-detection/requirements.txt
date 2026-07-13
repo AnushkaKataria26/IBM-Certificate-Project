@@ -1,0 +1,21 @@
+scikit-learn
+pandas
+numpy
+nltk
+joblib
+fastapi
+uvicorn
+pydantic
+mlflow
+pytest
+httpx
+
+# Transformer dependencies
+torch
+transformers
+datasets
+accelerate
+
+# Explainability
+lime
+streamlit

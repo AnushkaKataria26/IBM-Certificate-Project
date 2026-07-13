@@ -1,0 +1,10 @@
+aliases:
+  Production: '3'
+  Staging: '3'
+creation_timestamp: 1783532833296
+deployment_job_id: null
+deployment_job_state: null
+description: null
+last_updated_timestamp: 1783550162860
+name: sourcetrace-classifier
+workspace: default

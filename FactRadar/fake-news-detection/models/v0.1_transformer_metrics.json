@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-07-08T18:04:21+00:00",
+  "model_name": "distilbert-base-uncased",
+  "batch_size_used": 16,
+  "training_time_seconds": 70.36870813369751,
+  "device": "cpu",
+  "random_accuracy": 0.62,
+  "random_precision_macro": 0.8061224489795918,
+  "random_recall_macro": 0.525,
+  "random_f1_macro": 0.4273658830620856,
+  "random_roc_auc": 0.8416666666666666,
+  "topic_disjoint_accuracy": 0.0,
+  "topic_disjoint_single_class": 1.0,
+  "temporal_accuracy": 0.78,
+  "temporal_precision_macro": 0.39,
+  "temporal_recall_macro": 0.5,
+  "temporal_f1_macro": 0.43820224719101125,
+  "temporal_roc_auc": 0.9696969696969697
+}

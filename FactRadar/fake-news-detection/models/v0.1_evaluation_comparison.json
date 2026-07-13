@@ -1,0 +1,75 @@
+{
+  "timestamp": "2026-07-06T11:27:19.264870+00:00",
+  "model": "models/v0.1_baseline.joblib",
+  "results": [
+    {
+      "split_name": "Random Split Test",
+      "n_rows": 5747,
+      "n_classes_in_data": 2,
+      "label_balance": {
+        "0": 3139,
+        "1": 2608
+      },
+      "accuracy": 0.976509,
+      "confusion_matrix": {
+        "tn": 3091,
+        "fp": 48,
+        "fn": 87,
+        "tp": 2521
+      },
+      "precision_macro": 0.97697,
+      "recall_macro": 0.975675,
+      "f1_macro": 0.976276,
+      "roc_auc": 0.995522
+    },
+    {
+      "split_name": "Topic-Disjoint Test",
+      "n_rows": 10223,
+      "n_classes_in_data": 2,
+      "label_balance": {
+        "0": 9709,
+        "1": 514
+      },
+      "accuracy": 0.991392,
+      "confusion_matrix": {
+        "tn": 9668,
+        "fp": 41,
+        "fn": 47,
+        "tp": 467
+      },
+      "precision_macro": 0.957227,
+      "recall_macro": 0.952169,
+      "f1_macro": 0.954682,
+      "roc_auc": 0.996443
+    },
+    {
+      "split_name": "Temporal Test",
+      "n_rows": 5747,
+      "n_classes_in_data": 2,
+      "label_balance": {
+        "0": 5075,
+        "1": 672
+      },
+      "accuracy": 0.99304,
+      "confusion_matrix": {
+        "tn": 5056,
+        "fp": 19,
+        "fn": 21,
+        "tp": 651
+      },
+      "precision_macro": 0.983753,
+      "recall_macro": 0.982503,
+      "f1_macro": 0.983127,
+      "roc_auc": 0.999061
+    }
+  ],
+  "f1_deltas_pp": {
+    "Topic-Disjoint Test": 2.16,
+    "Temporal Test": -0.69
+  },
+  "dataset_limitations": [
+    "source_file is collinear with label \u2014 no publisher-disjoint split possible",
+    "subject column used as proxy for topic-disjoint split; each subject is 100% one class",
+    "Temporal split date parsing required multi-format handling; 1 row had a non-date string"
+  ]
+}

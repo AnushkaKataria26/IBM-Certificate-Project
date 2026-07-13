@@ -1,0 +1,16 @@
+creation_timestamp: 1783533916047
+current_stage: None
+deployment_job_state: null
+description: null
+last_updated_timestamp: 1783533916047
+model_id: m-825a5e214e6d4d76a25c156a33cbd524
+name: sourcetrace-classifier
+run_id: 486ea44b74a342ecae6bcbd0889020c8
+run_link: null
+source: models:/m-825a5e214e6d4d76a25c156a33cbd524
+status: READY
+status_message: null
+storage_location: file:///Users/anushkakataria/Desktop/Placement/Projects/FactRadar/fake-news-detection/mlruns/222621951414397516/models/m-825a5e214e6d4d76a25c156a33cbd524/artifacts
+user_id: null
+version: 3
+workspace: default

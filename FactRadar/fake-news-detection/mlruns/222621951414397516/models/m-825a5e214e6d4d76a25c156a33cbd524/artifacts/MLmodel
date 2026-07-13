@@ -1,0 +1,34 @@
+artifact_path: file:///Users/anushkakataria/Desktop/Placement/Projects/FactRadar/fake-news-detection/mlruns/222621951414397516/models/m-825a5e214e6d4d76a25c156a33cbd524/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.transformers
+    python_version: 3.11.15
+  transformers:
+    code: null
+    components:
+    - tokenizer
+    instance_type: TextClassificationPipeline
+    model_binary: model
+    pipeline_model_type: DistilBertForSequenceClassification
+    source_model_name: distilbert-base-uncased
+    task: text-classification
+    tokenizer_type: BertTokenizer
+    torch_dtype: torch.float32
+    transformers_version: 5.13.0
+is_signature_from_type_hint: false
+mlflow_version: 3.14.0
+model_id: m-825a5e214e6d4d76a25c156a33cbd524
+model_size_bytes: 268565161
+model_uuid: m-825a5e214e6d4d76a25c156a33cbd524
+prompts: null
+run_id: 486ea44b74a342ecae6bcbd0889020c8
+signature:
+  inputs: '[{"type": "string", "required": true}]'
+  outputs: '[{"type": "string", "name": "label", "required": true}, {"type": "double",
+    "name": "score", "required": true}]'
+  params: null
+type_hint_from_example: false
+utc_time_created: '2026-07-08 18:04:38.304757'

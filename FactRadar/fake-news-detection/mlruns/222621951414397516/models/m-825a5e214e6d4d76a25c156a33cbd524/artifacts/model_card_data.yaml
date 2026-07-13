@@ -1,0 +1,7 @@
+datasets:
+- bookcorpus
+- wikipedia
+language: en
+license: apache-2.0
+tags:
+- exbert

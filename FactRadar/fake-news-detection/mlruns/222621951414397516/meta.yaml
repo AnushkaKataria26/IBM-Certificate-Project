@@ -1,0 +1,9 @@
+artifact_location: file:///Users/anushkakataria/Desktop/Placement/Projects/FactRadar/fake-news-detection/mlruns/222621951414397516
+creation_time: 1783532377270
+effective_trace_archival_retention: null
+experiment_id: '222621951414397516'
+last_update_time: 1783532377270
+lifecycle_stage: active
+name: sourcetrace
+trace_location: null
+workspace: default

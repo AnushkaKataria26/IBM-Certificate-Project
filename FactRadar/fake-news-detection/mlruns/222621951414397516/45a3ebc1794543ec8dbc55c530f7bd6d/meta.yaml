@@ -1,0 +1,14 @@
+artifact_uri: file:///Users/anushkakataria/Desktop/Placement/Projects/FactRadar/fake-news-detection/mlruns/222621951414397516/45a3ebc1794543ec8dbc55c530f7bd6d/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '222621951414397516'
+lifecycle_stage: active
+run_id: 45a3ebc1794543ec8dbc55c530f7bd6d
+run_name: transformer_v0.1
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1783532633733
+status: 1
+tags: []
+user_id: anushkakataria
