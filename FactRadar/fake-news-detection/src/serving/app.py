@@ -33,13 +33,47 @@ from src.serving.schemas import (
     BatchPredictResponse,
     BatchPredictResult,
     BatchPredictSummary,
+    AnalyzeRequest,
+    AnalyzeResponse,
 )
+
+import pandas as pd
+from src.serving.rag_verification import build_reference_index, run_verification_stage
+from src.serving.explanation_llm import load_explanation_model, attach_explanation_to_prediction
+
+import threading
+
+_reference_index = None
+
+def _load_rag_index_task():
+    global _reference_index
+    try:
+        logger.info("Starting RAG reference index build in background...")
+        # Limiting to 15k rows to avoid excessive memory and CPU during startup
+        df = pd.read_csv("data/splits/train.csv").head(15000)
+        df['clean_text'] = df['clean_text'].fillna("")
+        df['label_str'] = df['label'].map({1: "fake", 0: "real"}).fillna("unknown")
+        _reference_index = build_reference_index(
+            corpus_texts=df['clean_text'].tolist(),
+            corpus_labels=df['label_str'].tolist(),
+            corpus_ids=df['article_id'].astype(str).tolist()
+        )
+        logger.info(f"Loaded RAG reference index successfully with {len(df)} records.")
+    except Exception as e:
+        logger.warning(f"Failed to load RAG reference index: {e}")
+        _reference_index = None
 
 # ---------------------------------------------------------------------------
 # Logging
 # ---------------------------------------------------------------------------
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
+
+def load_rag_index():
+    t = threading.Thread(target=_load_rag_index_task, daemon=True)
+    t.start()
+
+load_rag_index()
 
 # ---------------------------------------------------------------------------
 # Paths (relative to project root, where uvicorn is launched)
@@ -289,6 +323,115 @@ async def explain(request: PredictRequest) -> ExplainResponse:
 
 
 # ---------------------------------------------------------------------------
+# POST /analyze
+# ---------------------------------------------------------------------------
+@app.post("/analyze", response_model=AnalyzeResponse)
+async def analyze(request: AnalyzeRequest) -> AnalyzeResponse:
+    """Detailed analysis combining Prediction, LIME, LLM explanation, and RAG Verification."""
+    if not model_loaded:
+        raise HTTPException(
+            status_code=503,
+            detail="Model is not loaded. Service is degraded.",
+        )
+
+    try:
+        from src.preprocessing.clean_text import clean_text
+        cleaned = clean_text(request.text)
+        if not cleaned:
+            raise HTTPException(
+                status_code=422,
+                detail="Input contains no usable text content after preprocessing.",
+            )
+
+        warning = None
+        if len(cleaned.split()) < _MIN_TOKEN_COUNT:
+            warning = "low_confidence_ood"
+
+        probabilities = unified_predict_proba([cleaned])[0]
+        predicted_class_idx = probabilities.argmax()
+        confidence = float(probabilities[predicted_class_idx])
+        predicted_class = int(predicted_class_idx)
+        predicted_label = "fake" if predicted_class == 1 else "real"
+
+        prediction_result = {
+            "predicted_label": predicted_label,
+            "confidence": confidence
+        }
+
+        # Run LIME
+        from src.serving.explain_lime import explain_instance
+        try:
+            explanation_list = await asyncio.wait_for(
+                asyncio.to_thread(explain_instance, request.text, unified_predict_proba, 10),
+                timeout=10.0
+            )
+        except asyncio.TimeoutError:
+            explanation_list = []
+            warning = (warning + "; lime_timeout") if warning else "lime_timeout"
+
+        top_tokens = [TokenWeight(token=k, weight=v) for k, v in explanation_list]
+        lime_tuples = [(k, v) for k, v in explanation_list]
+
+        # Run LLM Explanation
+        tokenizer, expl_model = None, None
+        try:
+            tokenizer, expl_model = load_explanation_model()
+        except Exception as e:
+            logger.warning(f"Failed to load explanation model: {e}")
+
+        explained_result = await asyncio.to_thread(
+            attach_explanation_to_prediction,
+            prediction_result,
+            request.text,
+            lime_tuples,
+            tokenizer,
+            expl_model
+        )
+
+        # Run RAG Verification
+        if _reference_index is not None:
+            verified_result = await asyncio.to_thread(
+                run_verification_stage,
+                explained_result,
+                request.text,
+                request.article_id,
+                _reference_index,
+                tokenizer=tokenizer,
+                model=expl_model
+            )
+        else:
+            verified_result = explained_result
+            verified_result["verification"] = {
+                "activated": False,
+                "reason": "no_reference_index"
+            }
+
+        return AnalyzeResponse(
+            article_id=request.article_id,
+            predicted_label=verified_result["predicted_label"],
+            confidence=round(verified_result["confidence"], 6),
+            top_contributing_tokens=top_tokens,
+            explanation=verified_result["explanation"],
+            verification=verified_result.get("verification"),
+            model_version=_MODEL_VERSION,
+            warning=warning,
+        )
+
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.error(
+            "Unexpected error during analysis: %s\n%s",
+            exc,
+            traceback.format_exc(),
+        )
+        raise HTTPException(
+            status_code=500,
+            detail="Internal server error during analysis computation.",
+        )
+
+
+# ---------------------------------------------------------------------------
 # POST /predict/batch
 # ---------------------------------------------------------------------------
 @app.post("/predict/batch", response_model=BatchPredictResponse)
@@ -415,7 +558,7 @@ async def model_version() -> ModelVersionResponse:
 
     return ModelVersionResponse(
         model_version=_MODEL_VERSION,
-        trained_at=_metrics.get("timestamp", "unknown"),
+        trained_at=str(_metrics.get("timestamp", "unknown")),
         metrics={
             "accuracy": _metrics.get("accuracy"),
             "precision_macro": _metrics.get("precision_macro"),

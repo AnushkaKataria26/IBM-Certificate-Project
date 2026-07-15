@@ -119,3 +119,53 @@ class ExplainResponse(BaseModel):
     top_contributing_tokens: list[TokenWeight]
     model_version: str
     warning: Optional[str] = None
+
+
+class ExplanationDict(BaseModel):
+    """Schema for LLM explanation block."""
+    explanation: str
+    model_used: str
+    fallback_used: bool
+    truncated: bool
+    generation_time_ms: float
+
+
+class VerificationResponse(BaseModel):
+    """Schema for RAG verification block."""
+    activated: bool
+    reason: Optional[str] = None
+    verdict: Optional[str] = None
+    justification: Optional[str] = None
+    evidence_count: Optional[int] = None
+    evidence_ids: Optional[list[str]] = None
+    parse_successful: Optional[bool] = None
+    recommend_review: Optional[bool] = None
+
+
+class AnalyzeRequest(BaseModel):
+    """Schema for POST /analyze request body."""
+    article_id: str
+    text: str
+
+    @field_validator("text")
+    @classmethod
+    def text_must_not_be_blank(cls, v: str) -> str:
+        """Reject empty or whitespace-only text."""
+        if not v.strip():
+            raise ValueError(
+                "text field must contain at least one non-whitespace character"
+            )
+        return v
+
+
+class AnalyzeResponse(BaseModel):
+    """Schema for POST /analyze response body."""
+    article_id: str
+    predicted_label: Literal["fake", "real"]
+    confidence: float
+    top_contributing_tokens: list[TokenWeight]
+    explanation: ExplanationDict
+    verification: Optional[VerificationResponse] = None
+    model_version: str
+    warning: Optional[str] = None
+

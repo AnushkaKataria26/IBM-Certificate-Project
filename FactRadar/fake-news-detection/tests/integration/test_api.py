@@ -37,7 +37,7 @@ class TestPredictValid:
         data = response.json()
         assert data["predicted_label"] in ("fake", "real")
         assert 0.0 <= data["confidence"] <= 1.0
-        assert data["model_version"] == "v0.1_baseline"
+        assert data["model_version"] == "sourcetrace-classifier-v3"
         # Normal-length text should NOT have a warning
         assert data["warning"] is None
 
@@ -164,7 +164,7 @@ class TestModelVersion:
         response = client.get("/model/version")
         assert response.status_code == 200
         data = response.json()
-        assert data["model_version"] == "v0.1_baseline"
+        assert data["model_version"] == "sourcetrace-classifier-v3"
         assert data["trained_at"] is not None
         assert data["trained_at"] != ""
         assert isinstance(data["metrics"], dict)
