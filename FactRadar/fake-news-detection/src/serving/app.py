@@ -106,40 +106,16 @@ _mtype = "sklearn"
 
 def load_model():
     global _pipeline, _metrics, model_loaded, _mtype, _MODEL_VERSION
-    client = mlflow.tracking.MlflowClient()
     try:
-        model_name = "sourcetrace-classifier"
-        mv = client.get_model_version_by_alias(model_name, "Production")
-        model_uri = f"models:/{model_name}@Production"
-        
-        # Determine model flavor
-        run = client.get_run(mv.run_id)
-        if "transformer" in run.data.tags.get("mlflow.runName", "") or "transformer" in mv.source:
-            _pipeline = mlflow.transformers.load_model(model_uri)
-            _mtype = "transformers"
-        else:
-            _pipeline = mlflow.sklearn.load_model(model_uri)
-            _mtype = "sklearn"
-            
-        _MODEL_VERSION = f"{model_name}-v{mv.version}"
+        _pipeline = joblib.load(_MODEL_PATH)
+        _mtype = "sklearn"
         model_loaded = True
-        logger.info(f"Loaded Production model {_MODEL_VERSION} ({_mtype}) from MLflow registry.")
-        
-        # Load metrics dynamically from run if possible
-        _metrics = run.data.metrics
-        _metrics["timestamp"] = run.info.start_time
-    except Exception as exc:
-        logger.warning(f"Failed to load from MLflow registry: {exc}. Falling back to local joblib.")
-        try:
-            _pipeline = joblib.load(_MODEL_PATH)
-            _mtype = "sklearn"
-            model_loaded = True
-            with open(_METRICS_PATH, "r") as f:
-                _metrics = json.load(f)
-            logger.info("Fallback loaded successfully from %s", _MODEL_PATH)
-        except Exception as e:
-            logger.error(f"Fallback loading failed: {e}")
-            model_loaded = False
+        with open(_METRICS_PATH, "r") as f:
+            _metrics = json.load(f)
+        logger.info("Loaded baseline model successfully from %s", _MODEL_PATH)
+    except Exception as e:
+        logger.error(f"Failed to load baseline model: {e}")
+        model_loaded = False
 
 load_model()
 
@@ -291,12 +267,12 @@ async def explain(request: PredictRequest) -> ExplainResponse:
         try:
             explanation_list = await asyncio.wait_for(
                 asyncio.to_thread(explain_instance, request.text, unified_predict_proba, 10),
-                timeout=10.0
+                timeout=60.0
             )
         except asyncio.TimeoutError:
             raise HTTPException(
                 status_code=504,
-                detail="Explanation computation exceeded the 10 second timeout."
+                detail="Explanation computation exceeded the 60 second timeout."
             )
             
         top_tokens = [TokenWeight(token=k, weight=v) for k, v in explanation_list]
@@ -363,7 +339,7 @@ async def analyze(request: AnalyzeRequest) -> AnalyzeResponse:
         try:
             explanation_list = await asyncio.wait_for(
                 asyncio.to_thread(explain_instance, request.text, unified_predict_proba, 10),
-                timeout=10.0
+                timeout=60.0
             )
         except asyncio.TimeoutError:
             explanation_list = []

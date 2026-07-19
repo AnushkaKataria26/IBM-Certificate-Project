@@ -5,8 +5,6 @@ from src.preprocessing.clean_text import clean_text
 
 logger = logging.getLogger(__name__)
 
-# Instantiate explainer once
-_explainer = LimeTextExplainer(class_names=["real", "fake"])
 
 def explain_instance(text: str, predict_fn, num_features: int = 10) -> list[tuple[str, float]]:
     """
@@ -20,9 +18,8 @@ def explain_instance(text: str, predict_fn, num_features: int = 10) -> list[tupl
     Returns:
         A list of (token, weight) tuples sorted by absolute weight descending.
     """
-    if _explainer is None:
-        raise RuntimeError("Explainer is not loaded.")
-        
+    # Instantiate explainer with fixed seed for perfect consistency
+    _explainer = LimeTextExplainer(class_names=["real", "fake"], random_state=42)
     cleaned_text = clean_text(text)
     
     if not cleaned_text.strip():
@@ -33,7 +30,7 @@ def explain_instance(text: str, predict_fn, num_features: int = 10) -> list[tupl
         cleaned_text, 
         predict_fn, 
         num_features=num_features,
-        num_samples=10
+        num_samples=100
     )
     
     # exp.as_list() returns a list of (word, weight) for the predicted class

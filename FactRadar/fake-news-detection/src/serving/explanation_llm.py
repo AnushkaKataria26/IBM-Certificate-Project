@@ -142,8 +142,7 @@ def generate_explanation(
                     **inputs, 
                     max_new_tokens=max_new_tokens,
                     repetition_penalty=1.2,
-                    do_sample=True,
-                    temperature=0.7
+                    do_sample=False
                 )
                 raw_out = tokenizer.decode(outputs[0], skip_special_tokens=True)
                 result_container["text"] = raw_out

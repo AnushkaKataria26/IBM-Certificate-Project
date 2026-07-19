@@ -249,8 +249,7 @@ def run_verification_stage(
             **inputs, 
             max_new_tokens=32,
             repetition_penalty=1.2,
-            temperature=0.1,
-            do_sample=True
+            do_sample=False
         )
         raw_output = tokenizer.decode(outputs[0], skip_special_tokens=True)
         
